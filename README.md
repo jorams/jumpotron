@@ -25,6 +25,13 @@ Installation
 2. Clone this repository somewhere ASDF can find it
 3. `(ql:quickload :jumpotron)`
 
+Dependencies
+------------
+
+- [split-sequence](http://www.cliki.net/split-sequence) (Public Domain)
+- [ningle](https://github.com/fukamachi/ningle) (LLGPL)
+- [Clack](https://github.com/fukamachi/clack) (LLGPL)
+
 API
 ---
 
