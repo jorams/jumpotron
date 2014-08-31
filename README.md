@@ -8,7 +8,7 @@ Quickstart
 
 1. Run the following code in a REPL:
 
-    ```commonlisp
+    ```lisp
     (jumpotron:defjump "gh" "https://github.com/search?&q=~@{~A~^+~}")
     (jumpotron:start)
     ```
@@ -30,7 +30,7 @@ API
 
 ### DEFJUMP
 
-```commonlisp
+```lisp
 (defjump prefix format-string)
 ```
 
@@ -40,14 +40,14 @@ All jumps are stored in a global hash table.
 
 As an example, let's look at the quickstart:
 
-```commonlisp
+```lisp
 (jumpotron:defjump "gh" "https://github.com/search?&q=~@{~A~^+~}")
 (jumpotron:start)
 ```
 
 If you then go to `localhost:5000/jump?q=gh jumpotron`, the `gh` is `EQUAL` to the first word in the query, so the user will be redirected to the result of...
 
-```commonlisp
+```lisp
 (format nil "https://github.com/search?&q=~@{~A~^+~}" "jumpotron")
 ```
 
@@ -55,7 +55,7 @@ If you then go to `localhost:5000/jump?q=gh jumpotron`, the `gh` is `EQUAL` to t
 
 ### START
 
-```commonlisp
+```lisp
 (start &optional (port 5000))
 ```
 
@@ -63,7 +63,7 @@ Starts Jumpotron on `PORT`.
 
 ### STOP
 
-```commonlisp
+```lisp
 (stop)
 ```
 
