@@ -9,13 +9,13 @@ Quickstart
 1. Run the following code in a REPL:
 
     ```lisp
-    (jumpotron:defjump "gh" "https://github.com/search?&q=~@{~A~^+~}")
+    (jumpotron:defjump "!gh" "https://github.com/search?&q=~@{~A~^+~}")
     (jumpotron:start)
     ```
 
-2. Now open your browser and go to `http://localhost:5000/jump?q=gh jumpotron`
+2. Now open your browser and go to `http://localhost:5000/jump?q=!gh jumpotron`
 
-   (You can also go to `http://localhost:5000/gh jumpotron`)
+   (You can also go to `http://localhost:5000/!gh jumpotron`)
 3. ????
 
 Installation
@@ -38,27 +38,40 @@ API
 ### DEFJUMP
 
 ```lisp
-(defjump prefix format-string)
+(defjump trigger format-string &optional (exclude-trigger-p t))
 ```
 
-Defines a new jump. If a request comes in where the first word in the query is `EQUAL` to `PREFIX`, the user will be redirected to the result of calling `FORMAT` with `FORMAT-STRING` and the rest of the words in the query.
+Defines a new jump. If a request comes in where a word in the query is `EQUAL` to `PREFIX`, the user will be redirected to the result of calling `FORMAT` with `FORMAT-STRING` and the words in the query. If `EXCLUDE-TRIGGER-P` is `NIL` those words will also still contain `TRIGGER`.
 
 All jumps are stored in a global hash table.
 
 As an example, let's look at the quickstart:
 
 ```lisp
-(jumpotron:defjump "gh" "https://github.com/search?&q=~@{~A~^+~}")
+(jumpotron:defjump "!gh" "https://github.com/search?&q=~@{~A~^+~}")
 (jumpotron:start)
 ```
 
-If you then go to `localhost:5000/jump?q=gh jumpotron`, the `gh` is `EQUAL` to the first word in the query, so the user will be redirected to the result of...
+If you then go to `localhost:5000/jump?q=!gh jumpotron`, the `!gh` is `EQUAL` to the first word in the query, so you'll be redirected to the result of...
 
 ```lisp
 (format nil "https://github.com/search?&q=~@{~A~^+~}" "jumpotron")
 ```
 
 ...which is `https://github.com/search?&q=jumpotron`.
+
+If you visit `localhost:5000/jump?q=jumpotrong !gh` instead, the result would be the same.
+
+If you specify `NIL` as the `TRIGGER` argument this jump will then be the default jump. You could for example set it to `https://duckduckgo.com/?q=~@{~A~^+~}`, in which case every query without a trigger match would be passed to DuckDuckGo. (You could practically add your own !bangs to DuckDuckGo that way).
+
+If you give `NIL` as a third argument to `DEFJUMP`, like this:
+
+```lisp
+(jumpotron:defjump "!gh" "https://github.com/search?&q=~@{~A~^+~}" nil)
+```
+
+...the "!gh" won't be removed from the query, so you'll be looking for "jumpotron !gh" or "!gh jumpotron" on Github.
+
 
 ### START
 

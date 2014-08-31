@@ -6,17 +6,32 @@
 
 (defvar *jumps* (make-hash-table :test 'equal))
 
-(defun jump (format arguments)
-  (when format
+(defclass jump ()
+  ((trigger :initarg :trigger
+            :initform (error "A jump needs a trigger")
+            :reader trigger)
+   (target :initarg :target
+           :initform (error "A jump needs a target")
+           :reader target)
+   (exclude-trigger-p :initarg :exclude-trigger-p
+                      :initform t
+                      :reader exclude-trigger-p)))
+
+(defun jump (query)
+  (let* ((parts (split-sequence #\Space query))
+         (jump-trigger (find-if #'(lambda (part) (gethash part *jumps*))
+                                parts))
+         (jump (gethash jump-trigger *jumps*))
+         (remaining-parts (if (exclude-trigger-p jump)
+                              (remove (trigger jump) parts :test #'equal
+                                                           :count 1)
+                              parts)))
     (redirect *response*
-              (apply #'format nil format arguments))))
+              (apply #'format nil (target jump) remaining-parts))))
 
 (defun jump-route (params)
-  (let* ((query (or (getf params :|q|)
-                    (first (getf params :splat))))
-         (arguments (split-sequence #\Space query)))
-    (jump (gethash (first arguments) *jumps*)
-          (rest arguments))))
+  (jump (or (getf params :|q|)
+            (first (getf params :splat)))))
 
 (setf (route *app* "/")
       #'(lambda (params)
@@ -27,13 +42,20 @@
 (setf (route *app* "/*") #'jump-route)
 
 
-(defun defjump (prefix format-string)
-  "Defines a new jump. If a request comes in where the first word in the query
+(defun defjump (trigger format-string &optional (exclude-trigger-p t))
+  "Defines a new jump. If a request comes in where a word in the query
 is EQUAL to PREFIX, the user will be redirected to the result of calling
-FORMAT with FORMAT-STRING and the rest of the words in the query.
+FORMAT with FORMAT-STRING and the words in the query. If EXCLUDE-TRIGGER-P is
+NIL those words will also still contain TRIGGER.
 
 All jumps are stored in a global hash table. "
-  (setf (gethash prefix *jumps*) format-string))
+  (setf (gethash trigger *jumps*)
+        (make-instance 'jump
+                       :trigger trigger
+                       :target format-string
+                       :exclude-trigger-p exclude-trigger-p)))
+
+;;; Plumbing
 
 (defun start (&optional (port 5000))
   "Starts Jumpotron on PORT"
