@@ -8,10 +8,10 @@ Quickstart
 
 1. Run the following code in a REPL:
 
-```commonlisp
-(jumpotron:defjump "gh" "https://github.com/search?&q=~@{~A~^+~}")
-(jumpotron:start)
-```
+    ```commonlisp
+    (jumpotron:defjump "gh" "https://github.com/search?&q=~@{~A~^+~}")
+    (jumpotron:start)
+    ```
 
 2. Now open your browser and go to `http://localhost:5000/jump?q=gh jumpotron`
 
