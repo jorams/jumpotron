@@ -32,6 +32,11 @@ Dependencies
 - [ningle](https://github.com/fukamachi/ningle) (LLGPL)
 - [Clack](https://github.com/fukamachi/clack) (LLGPL)
 
+Set as browser search engine
+----------------------------
+
+You can use [this opensearch generator](http://customsearchprovider.appspot.com/) to add your personal Jumpotron to your browser as a search engine.
+
 API
 ---
 
