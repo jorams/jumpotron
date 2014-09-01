@@ -1,7 +1,7 @@
 Jumpotron
 =========
 
-Overly simplistic redirect server.
+A layer between you and the web. Jumpotron was created to extend [DuckDuckGo](https://duckduckgo.com/)'s concept of !bangs. It works best when used as your browser's search engine, dropping through to another search engine if there's nothing for Jumpotron to do.
 
 Quickstart
 ----------
