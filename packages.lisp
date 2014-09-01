@@ -4,4 +4,11 @@
                 #:redirect)
   (:export #:start
            #:stop
-           #:defjump))
+           #:jump                       ; Both class and generic function
+           #:redirecting-jump
+           #:define-redirect
+
+           ;; Re-exported symbols from NINGLE
+           #:*request*
+           #:*response*
+           #:*context*))

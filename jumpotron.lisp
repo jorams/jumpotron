@@ -7,31 +7,43 @@
 (defvar *jumps* (make-hash-table :test 'equal))
 
 (defclass jump ()
-  ((trigger :initarg :trigger
-            :initform (error "A jump needs a trigger")
-            :reader trigger)
-   (target :initarg :target
-           :initform (error "A jump needs a target")
-           :reader target)
-   (exclude-trigger-p :initarg :exclude-trigger-p
+  ((exclude-trigger-p :initarg :exclude-trigger-p
                       :initform t
-                      :reader exclude-trigger-p)))
+                      :reader exclude-trigger-p
+                      :documentation "Whether or not the query to pass to this
+jump should be stripped of the triggering word.")))
 
-(defun jump (query)
+(defclass redirecting-jump (jump)
+  ((target :initarg :target
+           :initform (error "A jump needs a target")
+           :reader target
+           :documentation "FORMAT-string that will consume the words in the
+query to construct a url to redirect the user to.")))
+
+(defgeneric jump (jump query-parts)
+  (:documentation "Do something with JUMP based on the words in QUERY-PARTS.
+This generic function shouldn't ever be called outside the context of a request.
+Therefore, when implementing methods, you can rely on *CONTEXT*, *REQUEST* and
+*RESPONSE* having appropriate values."))
+
+(defmethod jump ((jump redirecting-jump) query-parts)
+  (redirect *response*
+            (apply #'format nil (target jump) query-parts)))
+
+(defun process-query (query)
   (let* ((parts (split-sequence #\Space query))
-         (jump-trigger (find-if #'(lambda (part) (gethash part *jumps*))
-                                parts))
-         (jump (gethash jump-trigger *jumps*))
+         (trigger (find-if #'(lambda (part) (gethash part *jumps*))
+                           parts))
+         (jump (gethash trigger *jumps*))
          (remaining-parts (if (exclude-trigger-p jump)
-                              (remove (trigger jump) parts :test #'equal
-                                                           :count 1)
+                              (remove trigger parts :test #'equal
+                                                    :count 1)
                               parts)))
-    (redirect *response*
-              (apply #'format nil (target jump) remaining-parts))))
+    (jump jump remaining-parts)))
 
 (defun jump-route (params)
-  (jump (or (getf params :|q|)
-            (first (getf params :splat)))))
+  (process-query (or (getf params :|q|)
+                     (first (getf params :splat)))))
 
 (setf (route *app* "/")
       #'(lambda (params)
@@ -42,16 +54,15 @@
 (setf (route *app* "/*") #'jump-route)
 
 
-(defun defjump (trigger format-string &optional (exclude-trigger-p t))
-  "Defines a new jump. If a request comes in where a word in the query
-is EQUAL to PREFIX, the user will be redirected to the result of calling
+(defun define-redirect (trigger format-string &optional (exclude-trigger-p t))
+  "Defines a new redirecting jump. If a request comes in where a word in the
+query is EQUAL to PREFIX, the user will be redirected to the result of calling
 FORMAT with FORMAT-STRING and the words in the query. If EXCLUDE-TRIGGER-P is
 NIL those words will also still contain TRIGGER.
 
 All jumps are stored in a global hash table. "
   (setf (gethash trigger *jumps*)
-        (make-instance 'jump
-                       :trigger trigger
+        (make-instance 'redirecting-jump
                        :target format-string
                        :exclude-trigger-p exclude-trigger-p)))
 
