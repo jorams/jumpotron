@@ -99,7 +99,14 @@ This is a subclass of `JUMP` that adds one slot, `TARGET`. This slot contains a 
 
 Defines a new redirecting jump. If a request comes in where a word in the query is `EQUAL` to `PREFIX`, the user will be redirected to the result of calling `FORMAT` with `FORMAT-STRING` and the words in the query. If `EXCLUDE-TRIGGER-P` is `NIL` those words will also still contain `TRIGGER`.
 
-All jumps are stored in a global hash table.
+This is equivalent to, and actually does, the following:
+
+```lisp
+(add-jump trigger
+            (make-instance 'redirecting-jump
+                           :target format-string
+                           :exclude-trigger-p exclude-trigger-p))"
+```
 
 As an example, let's look at the quickstart:
 
