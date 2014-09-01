@@ -6,4 +6,13 @@
   :depends-on (#:clack #:ningle #:split-sequence)
   :components ((:file "packages")
                (:file "jumpotron")
-               (:file "redirecting-jump")))
+               (:file "redirecting-jump"))
+  :in-order-to ((test-op (test-op :jumpotron-test))))
+
+(defsystem jumpotron-test
+  :licence "MIT"
+  :pathname "test"
+  :components ((:file "jumpotron"))
+  :depends-on (#:jumpotron #:hu.dwim.stefil)
+  :perform (test-op (o s)
+                    (uiop:symbol-call :jumpotron-test '#:test-suite)))
