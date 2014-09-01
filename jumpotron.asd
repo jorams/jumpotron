@@ -5,4 +5,5 @@
   :license "MIT"
   :depends-on (#:clack #:ningle #:split-sequence)
   :components ((:file "packages")
-               (:file "jumpotron")))
+               (:file "jumpotron")
+               (:file "redirecting-jump")))
