@@ -85,7 +85,7 @@ Stops a running Jumpotron.
 (add-jump trigger jump)
 ```
 
-Add `JUMP` to the global hash table of jumps under the key `TRIGGER`.
+Add `JUMP` to the global hash table of jumps under the key `TRIGGER`. If `TRIGGER` is `NIL`, `JUMP` will be used when no other jump is triggered.
 
 ### REDIRECTING-JUMP (class)
 

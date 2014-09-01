@@ -43,7 +43,9 @@ Therefore, when implementing methods, you can rely on *CONTEXT*, *REQUEST* and
 (setf (route *app* "/*") #'jump-route)
 
 (defun add-jump (trigger jump)
-"Add `JUMP` to the global hash table of jumps under the key `TRIGGER`."
+"Add JUMP to the global hash table of jumps under the key TRIGGER.
+
+If TRIGGER is NIL, JUMP will be used when no other jump is triggered."
   (setf (gethash trigger *jumps*) jump))
 
 
