@@ -79,6 +79,14 @@ Starts Jumpotron on `PORT`.
 
 Stops a running Jumpotron.
 
+### ADD-JUMP (function)
+
+```lisp
+(add-jump trigger jump)
+```
+
+Add `JUMP` to the global hash table of jumps under the key `TRIGGER`.
+
 ### REDIRECTING-JUMP (class)
 
 This is a subclass of `JUMP` that adds one slot, `TARGET`. This slot contains a string that will be passed as the second argument to FORMAT, which can then consume the words in the query.

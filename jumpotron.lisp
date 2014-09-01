@@ -53,6 +53,9 @@ Therefore, when implementing methods, you can rely on *CONTEXT*, *REQUEST* and
 (setf (route *app* "/jump") #'jump-route)
 (setf (route *app* "/*") #'jump-route)
 
+(defun add-jump (trigger jump)
+"Add `JUMP` to the global hash table of jumps under the key `TRIGGER`."
+  (setf (gethash trigger *jumps*) jump))
 
 (defun define-redirect (trigger format-string &optional (exclude-trigger-p t))
   "Defines a new redirecting jump. If a request comes in where a word in the

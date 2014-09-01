@@ -5,6 +5,7 @@
   (:export #:start
            #:stop
            #:jump                       ; Both class and generic function
+           #:add-jump
            #:redirecting-jump
            #:define-redirect
 
