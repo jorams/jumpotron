@@ -19,7 +19,19 @@ This generic function shouldn't ever be called outside the context of a request.
 Therefore, when implementing methods, you can rely on *CONTEXT*, *REQUEST* and
 *RESPONSE* having appropriate values."))
 
+(defgeneric suggest (jump query-parts)
+  (:documentation "Return a list of (string) suggestions based on QUERY-PARTS.
+This generic function shouldn't ever be called outside the context of a request.
+Therefore, when implementing methods, you can rely on *CONTEXT*, *REQUEST* and
+*RESPONSE* having appropriate values."))
+
+(defmethod suggest (jump query-parts)
+  (remove nil (hash-table-keys *jumps*)))
+
 (defun process-query (query)
+  "Splits the query into multiple words and finds the associated jump (if any).
+Returns two values: The associated jump (or nil) and a list of words in the
+query."
   (let* ((parts (split-sequence #\Space query))
          (trigger (find-if #'(lambda (part) (gethash part *jumps*))
                            parts))
@@ -28,19 +40,30 @@ Therefore, when implementing methods, you can rely on *CONTEXT*, *REQUEST* and
                               (remove trigger parts :test #'equal
                                                     :count 1)
                               parts)))
-    (jump jump remaining-parts)))
+    (values jump remaining-parts)))
 
 (defun jump-route (params)
-  (process-query (or (getf params :|q|)
-                     (first (getf params :splat)))))
+  (multiple-value-call #'jump
+    (process-query (or (getf params :|q|)
+                       (first (getf params :splat))))))
+
+(defun suggest-route (params)
+  (clack.response:push-header *response* :content-type "application/json")
+  (multiple-value-bind (jump words)
+      (process-query (getf params :|q|))
+    (with-output-to-string (json-stream)
+      (yason:encode (list (format nil "~{~A~^ ~}" words)
+                          (suggest jump words))
+                    json-stream))))
 
 (setf (route *app* "/")
       #'(lambda (params)
           (declare (ignore params))
           "Thanks for passing by. Now jump back into hyperspace!"))
 
-(setf (route *app* "/jump") #'jump-route)
-(setf (route *app* "/*") #'jump-route)
+(setf (route *app* "/jump") 'jump-route)
+(setf (route *app* "/suggest") 'suggest-route)
+(setf (route *app* "/*") 'jump-route)
 
 (defun add-jump (trigger jump)
 "Add JUMP to the global hash table of jumps under the key TRIGGER.

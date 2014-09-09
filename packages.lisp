@@ -2,9 +2,12 @@
   (:use #:cl #:ningle #:split-sequence)
   (:import-from #:clack.response
                 #:redirect)
+  (:import-from #:alexandria
+                #:hash-table-keys)
   (:export #:start
            #:stop
            #:jump                       ; Both class and generic function
+           #:suggest
            #:add-jump
            #:redirecting-jump
            #:define-redirect

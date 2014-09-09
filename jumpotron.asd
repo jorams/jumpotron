@@ -3,7 +3,8 @@
   :description "Go ahead and jump."
   :author "Joram Schrijver <i@joram.io>"
   :license "MIT"
-  :depends-on (#:clack #:ningle #:split-sequence)
+  :depends-on (#:clack #:ningle #:split-sequence
+               #:alexandria #:yason)
   :components ((:file "packages")
                (:file "jumpotron")
                (:file "redirecting-jump"))
