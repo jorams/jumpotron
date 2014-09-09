@@ -1,4 +1,8 @@
-(in-package #:jumpotron)
+(defpackage #:jumpotron.redirecting-jump
+  (:use #:cl #:jumpotron)
+  (:import-from #:clack.response
+                #:redirect))
+(in-package #:jumpotron.redirecting-jump)
 
 (defclass redirecting-jump (jump)
   ((target :initarg :target

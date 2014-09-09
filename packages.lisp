@@ -1,7 +1,5 @@
 (defpackage #:jumpotron
   (:use #:cl #:ningle #:split-sequence)
-  (:import-from #:clack.response
-                #:redirect)
   (:import-from #:alexandria
                 #:hash-table-keys)
   (:export #:start
