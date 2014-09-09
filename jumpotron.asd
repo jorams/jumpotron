@@ -7,7 +7,8 @@
                #:alexandria #:yason)
   :components ((:file "packages")
                (:file "jumpotron")
-               (:file "redirecting-jump"))
+               (:file "redirecting-jump")
+               (:file "bookmarks"))
   :in-order-to ((test-op (test-op :jumpotron-test))))
 
 (defsystem jumpotron-test
