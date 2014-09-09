@@ -3,7 +3,7 @@ Jumpotron
 
 A layer between you and the web. Jumpotron was created to extend [DuckDuckGo](https://duckduckgo.com/)'s concept of !bangs. It works best when used as your browser's search engine, dropping through to another search engine if there's nothing for Jumpotron to do.
 
-Jumpotron currently only contains a way of redirecting you to an address based on a keyword, like DuckDuckGo's !bangs, but it's possible to extend it so that a keyword could trigger a more complicated action.
+Jumpotron currently contains a way of redirecting you to an address based on a keyword, like DuckDuckGo's !bangs, but it's possible to extend it so that a keyword could trigger a more complicated action. An example of this can be found in `bookmarks.lisp`, which implements (very) basic bookmarking functionality.
 
 Quickstart
 ----------
@@ -18,7 +18,6 @@ Quickstart
 2. Now open your browser and go to `http://localhost:5000/jump?q=!gh jumpotron`
 
    (You can also go to `http://localhost:5000/!gh jumpotron`)
-3. ????
 
 Installation
 ------------
@@ -33,6 +32,8 @@ Dependencies
 - [split-sequence](http://www.cliki.net/split-sequence) (Public Domain)
 - [ningle](https://github.com/fukamachi/ningle) (LLGPL)
 - [Clack](https://github.com/fukamachi/clack) (LLGPL)
+- [Alexandria](http://common-lisp.net/project/alexandria/) (Public Domain)
+- [YASON](http://common-lisp.net/project/yason/) (BSD)
 
 Set as browser search engine
 ----------------------------
@@ -59,6 +60,13 @@ Superclass for different types of jumps. It contains one slot:
 
 Will be called to do something with a query. `JUMP` will be an instance of JUMP, and `QUERY-PARTS` will be a list of words in the query. If `(EXCLUDE-TRIGGER-P JUMP)` is true this list won't contain the word that triggered this jump to be used, if its false it will.
 
+### SUGGEST (generic function)
+
+```lisp
+(defgeneric suggest (jump query-parts))
+```
+
+Will be called to give suggestions for a query. The arguments are the same as for `JUMP`. A method on this generic function should return a list of strings which will be returned to the client as suggestions. A default method is implemented that returns a list of all the trigger words defined.
 
 The rest of the API
 -------------------
@@ -134,6 +142,20 @@ If you give `NIL` as a third argument to `DEFINE-REDIRECT`, like this:
 ```
 
 ...the "!gh" won't be removed from the query, so you'll be looking for "jumpotron !gh" or "!gh jumpotron" on Github.
+
+
+### Basic bookmarks
+
+(Very) basic bookmarks are implemented in the package `JUMPOTRON.BOOKMARKS`. You can use them like this:
+
+```lisp
+(jumpotron:add-jump "!bma" (make-instance 'jumpotron.bookmarks:bookmarking-jump))
+(jumpotron:add-jump "!bm" (make-instance 'jumpotron.bookmarks:bookmark-jump))
+```
+
+If you then query `!bma jumpotron https://github.com/jorams/jumpotron` a bookmark will be added under the name `jumpotron`. You can then go to the bookmarked page by querying `!bm jumpotron`.
+
+The `BOOKMARK-JUMP` implements bookmark names as suggestions.
 
 
 License
