@@ -42,15 +42,18 @@ query."
                               parts)))
     (values jump remaining-parts)))
 
+(defun parameter (name params)
+  (cdr (assoc name params :test #'equalp)))
+
 (defun jump-route (params)
   (multiple-value-call #'jump
-    (process-query (or (getf params :|q|)
-                       (first (getf params :splat))))))
+    (process-query (or (parameter "q" params)
+                       (first (parameter :splat params))))))
 
 (defun suggest-route (params)
   (clack.response:push-header *response* :content-type "application/json")
   (multiple-value-bind (jump words)
-      (process-query (getf params :|q|))
+      (process-query (parameter "q" params))
     (with-output-to-string (json-stream)
       (yason:encode (list (format nil "~{~A~^ ~}" words)
                           (suggest jump words))
