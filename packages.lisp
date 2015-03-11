@@ -4,6 +4,8 @@
                 #:redirect)
   (:import-from #:alexandria
                 #:hash-table-keys)
+  (:import-from #:quri
+                #:url-encode)
   (:export #:start
            #:stop
            #:jump                       ; Both class and generic function

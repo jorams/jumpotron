@@ -10,7 +10,8 @@ query to construct a url to redirect the user to.")))
 (defmethod jump ((jump redirecting-jump) query-parts)
   (handler-case
       (redirect *response*
-                (apply #'format nil (target jump) query-parts))
+                (apply #'format nil (target jump) (mapcar #'url-encode
+                                                          query-parts)))
     (serious-condition () "You have an error in your query.")))
 
 (defun define-redirect (trigger format-string &optional (exclude-trigger-p t))

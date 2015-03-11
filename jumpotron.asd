@@ -4,7 +4,7 @@
   :author "Joram Schrijver <i@joram.io>"
   :license "MIT"
   :depends-on (#:clack #:ningle #:split-sequence
-               #:alexandria #:yason)
+               #:alexandria #:yason #:quri)
   :components ((:file "packages")
                (:file "jumpotron")
                (:file "redirecting-jump")
