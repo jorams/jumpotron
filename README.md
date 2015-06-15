@@ -12,12 +12,10 @@ Quickstart
 
     ```lisp
     (jumpotron:define-redirect "!gh" "https://github.com/search?&q=~@{~A~^+~}")
-    (jumpotron:start)
+    (hunchentoot:start (jumpotron:make-jumpotron))
     ```
 
 2. Now open your browser and go to `http://localhost:5000/jump?q=!gh jumpotron`
-
-   (You can also go to `http://localhost:5000/!gh jumpotron`)
 
 Installation
 ------------
@@ -29,11 +27,11 @@ Installation
 Dependencies
 ------------
 
-- [split-sequence](http://www.cliki.net/split-sequence) (Public Domain)
-- [ningle](https://github.com/fukamachi/ningle) (LLGPL)
-- [Clack](https://github.com/fukamachi/clack) (LLGPL)
+- [Hunchentoot](http://weitz.de/hunchentoot/) (BSD)
 - [Alexandria](http://common-lisp.net/project/alexandria/) (Public Domain)
 - [YASON](http://common-lisp.net/project/yason/) (BSD)
+- [CL-PPCRE](http://weitz.de/cl-ppcre/) (BSD)
+
 
 Set as browser search engine
 ----------------------------
@@ -68,24 +66,37 @@ Will be called to do something with a query. `JUMP` will be an instance of JUMP,
 
 Will be called to give suggestions for a query. The arguments are the same as for `JUMP`. A method on this generic function should return a list of strings which will be returned to the client as suggestions. A default method is implemented that returns a list of all the trigger words defined.
 
+
+Utilities for jumps
+-------------------
+
+### REDIRECT (function)
+
+```lisp
+(redirect url)
+```
+
+Redirect the current request to `URL`.
+
+### URL-ENCODE (function)
+
+```lisp
+(url-encode string)
+```
+
+URL-encodes `STRING`.
+
+
 The rest of the API
 -------------------
 
-### START (function)
+### MAKE-JUMPOTRON (function)
 
 ```lisp
-(start &optional (port 5000))
+(make-jumpotron &optional (port 5000))
 ```
 
-Starts Jumpotron on `PORT`.
-
-### STOP (function)
-
-```lisp
-(stop)
-```
-
-Stops a running Jumpotron.
+Creates a Jumpotron acceptor. You can start it using `(hunchentoot:start (make-jumpotron))`
 
 ### ADD-JUMP (function)
 
@@ -146,11 +157,11 @@ If you give `NIL` as a third argument to `DEFINE-REDIRECT`, like this:
 
 ### Basic bookmarks
 
-(Very) basic bookmarks are implemented in the package `JUMPOTRON.BOOKMARKS`. You can use them like this:
+(Very) basic bookmarks are implemented in the package `JUMPOTRON/BOOKMARKS`. You can use them like this:
 
 ```lisp
-(jumpotron:add-jump "!bma" (make-instance 'jumpotron.bookmarks:bookmarking-jump))
-(jumpotron:add-jump "!bm" (make-instance 'jumpotron.bookmarks:bookmark-jump))
+(jumpotron:add-jump "!bma" (make-instance 'jumpotron/bookmarks:bookmarking-jump))
+(jumpotron:add-jump "!bm" (make-instance 'jumpotron/bookmarks:bookmark-jump))
 ```
 
 If you then query `!bma jumpotron https://github.com/jorams/jumpotron` a bookmark will be added under the name `jumpotron`. You can then go to the bookmarked page by querying `!bm jumpotron`.
@@ -161,7 +172,7 @@ The `BOOKMARK-JUMP` implements bookmark names as suggestions.
 License
 -------
 
-    Copyright (c) 2014 Joram Schrijver
+    Copyright (c) 2015 Joram Schrijver
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal

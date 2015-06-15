@@ -1,14 +1,10 @@
-(defpackage #:jumpotron.bookmarks
-  (:use #:cl #:jumpotron)
-  (:import-from #:clack.response
-                #:redirect)
-  (:import-from #:alexandria
+(defpackage :jumpotron/bookmarks
+  (:use :cl :jumpotron/core)
+  (:import-from :alexandria
                 #:hash-table-keys)
-  (:import-from #:ningle
-                #:*response*)
   (:export #:bookmarking-jump
            #:bookmark-jump))
-(in-package #:jumpotron.bookmarks)
+(in-package :jumpotron/bookmarks)
 
 (defvar *bookmarks* (make-hash-table :test #'equal))
 
@@ -23,7 +19,7 @@
 
 (defmethod jump ((jump bookmark-jump) query-parts)
   (if (gethash (first query-parts) *bookmarks*)
-      (redirect *response* (gethash (first query-parts) *bookmarks*))
+      (redirect (gethash (first query-parts) *bookmarks*))
       "Bookmark doesn't exist."))
 
 (defmethod suggest ((jump bookmark-jump) query-parts)
