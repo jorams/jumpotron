@@ -61,14 +61,60 @@ query."
                               parts)))
     (values jump remaining-parts)))
 
+;;; Views ---------------------------------------------------------------------
+
+(defun view/index (opensearch-plugin-p)
+  (concatenate
+   'string
+   "<!doctype html>"
+   (when opensearch-plugin-p
+     "<link rel=\"search\"
+            type=\"application/opensearchdescription+xml\"
+            title=\"Jumpotron\"
+            href=\"/opensearch-plugin.xml\">") "
+   <p>Thanks for passing by. Now jump back into hyperspace!</p>"
+   (when opensearch-plugin-p
+     "<button
+       onclick=\"window.external.AddSearchProvider('/opensearch-plugin.xml')\">
+      Add search plugin
+   </button>")))
+
+(defun view/opensearch-plugin (url domain)
+  (format nil "
+<SearchPlugin xmlns=\"http://www.mozilla.org/2006/browser/search/\"
+              xmlns:os=\"http://a9.com/-/spec/opensearch/1.1/\">
+  <ShortName>Jumpotron</ShortName>
+  <Description>Jumpotron</Description>
+  <InputEncoding>UTF-8</InputEncoding>
+  <Url type=\"text/html\"
+       method=\"GET\"
+       template=\"~Ajump?q={searchTerms}\"
+       resultDomain=\"~A\"/>
+  <Url type=\"application/x-suggestions+json\"
+       method=\"GET\"
+       template=\"~Asuggest?q={searchTerms}\"
+       resultDomain=\"~A\"/>
+  <Url type=\"application/opensearchdescription+xml\"
+       rel=\"self\"
+       template=\"~Aopensearch-plugin.xml\"/>
+</SearchPlugin>
+"
+          url
+          domain
+          url
+          domain
+          url))
+
 ;;; Acceptor ------------------------------------------------------------------
 
-(defclass jumpotron-acceptor (acceptor) ())
+(defclass jumpotron-acceptor (acceptor)
+  ((url :initarg :url :initform nil :reader url)))
 
 (defmethod acceptor-dispatch-request ((acceptor jumpotron-acceptor) request)
   (cond
     ((string= (script-name*) "/")
-     "Thanks for passing by. Now jump back into hyperspace!")
+     (setf (header-out "Content-Type") "text/html")
+     (view/index (stringp (url acceptor))))
     ((string= (script-name*) "/jump")
      (multiple-value-call #'jump
        (process-query (or (parameter "q") ""))))
@@ -79,13 +125,20 @@ query."
        (with-output-to-string (json-stream)
          (yason:encode (list (format nil "~{~A~^ ~}" words)
                              (suggest jump words))
-                       json-stream))))))
+                       json-stream))))
+    ((and (string= (script-name*) "/opensearch-plugin.xml")
+          (stringp (url acceptor)))
+     (setf (header-out "Content-Type") "application/opensearchdescription+xml")
+     (view/opensearch-plugin (url acceptor) (host)))
+    (t (setf (return-code*) +http-not-found+)
+       "404")))
 
 ;;; Utilities -----------------------------------------------------------------
 
-(defun make-jumpotron (&optional (port 5000))
+(defun make-jumpotron (&key (port 5000) url)
   (make-instance 'jumpotron-acceptor
-                 :port port))
+                 :port port
+                 :url url))
 
 (defun redirect (url)
   (hunchentoot:redirect url :code +http-see-other+))

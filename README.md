@@ -12,7 +12,7 @@ Quickstart
 
     ```lisp
     (jumpotron:define-redirect "!gh" "https://github.com/search?&q=~@{~A~^+~}")
-    (hunchentoot:start (jumpotron:make-jumpotron))
+    (hunchentoot:start (jumpotron:make-jumpotron :url "http://localhost:5000/"))
     ```
 
 2. Now open your browser and go to `http://localhost:5000/jump?q=!gh jumpotron`
@@ -36,7 +36,7 @@ Dependencies
 Set as browser search engine
 ----------------------------
 
-You can use [this opensearch generator](http://customsearchprovider.appspot.com/) to add your personal Jumpotron to your browser as a search engine.
+If you've supplied a `:URL` parameter to `MAKE-JUMPOTRON`, Jumpotron serves an OpenSearch plugin (from `/opensearch-plugin.xml`). When visiting the address of your Jumpotron you should see a button to add that Jumpotron to your browser as a search engine.
 
 The jump protocol
 -----------------
@@ -93,10 +93,10 @@ The rest of the API
 ### MAKE-JUMPOTRON (function)
 
 ```lisp
-(make-jumpotron &optional (port 5000))
+(make-jumpotron &key (port 5000) url)
 ```
 
-Creates a Jumpotron acceptor. You can start it using `(hunchentoot:start (make-jumpotron))`
+Creates a Jumpotron acceptor. You can start it using `(hunchentoot:start (make-jumpotron))`. The `URL` parameter is used to generate the OpenSearch plugin.
 
 ### ADD-JUMP (function)
 
